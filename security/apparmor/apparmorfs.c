@@ -1029,13 +1029,7 @@ static int ns_mkdir_op(struct inode *dir, struct dentry *dentry, umode_t mode)
 	 * for pin_fs
 	 */
 	inode_unlock(dir);
-	securityfs_pin_fs();
 	inode_lock_nested(dir, I_MUTEX_PARENT);
-
-	error = __securityfs_setup_d_inode(dir, dentry, mode | S_IFDIR,  NULL,
-					   NULL, NULL);
-	if (error)
-		return error;
 
 	ns = aa_create_ns(parent, ACCESS_ONCE(dentry->d_name.name), dentry);
 	if (IS_ERR(ns)) {
@@ -1179,11 +1173,6 @@ static int __aa_fs_ns_mkdir_entries(struct aa_ns *ns, struct dentry *dir)
 	aa_get_ns(ns);
 	ns_subremove(ns) = dent;
 
-	  /* use create_dentry so we can supply private data */
-	dent = securityfs_create_dentry("namespaces",
-					S_IFDIR | S_IRWXU | S_IRUGO | S_IXUGO,
-					dir, ns, NULL,
-					&ns_dir_inode_operations);
 	if (IS_ERR(dent))
 		return PTR_ERR(dent);
 	aa_get_ns(ns);
